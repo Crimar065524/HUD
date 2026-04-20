@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EloraTube</title>
+
+    <style>
+      *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:Arial, Helvetica, sans-serif;
+      }
+      :root {
+        --bg: #0f0f0f;
+        --text: white;
+        --card: rgba(255,255,255,0.05);
+        --card-hover: rgba(255,255,255,0.15);
+        --border: rgba(255,255,255,0.05);
+      }
+
+      .light {
+        --bg: rgb(255, 255, 255);
+        --text: black;
+        --card: rgba(0, 0, 0, 0.1);
+        --card-hover: rgba(0,0,0,0.2);
+        --border: rgba(0,0,0,0.3);
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+      }
+
+      /* HEADER */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background-color: var(--border);
+        position: sticky;
+        height: 70px;
+      }
+
+      .logo {
+        font-weight: bold;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        color: var(--text);
+      }
+
+      .logoimg {
+        display: flex;
+        align-items: center;
+        background-color: red;
+        padding: 2px;
+        border-radius: 6px;
+        margin-right: 8px;
+      }
+
+      .icons {
+        display: flex;
+        gap: 15px;
+      }
+
+      /* LAYOUT */
+      .container {
+        display: flex;
+        height: calc(100vh - 70px);
+        position: relative;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: 10%;
+        height: 100%;
+        background: var(--bg);
+        border-right: 2px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: sticky;
+        padding: 0.5% 0.5%;
+        border-radius: 10px;
+        gap: 50px;
+      }
+
+      .side-btn {
+        width: 80%;
+        height: 80px;
+        border-radius: 14px;
+        background: var(--card);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        cursor: pointer;
+        transition: .2s;
+      }
+
+      .side-btn:hover {
+        background: var(--card-hover);
+      }
+
+      /* SEARCH */
+      .search-bar {
+        background: var(--card);
+        color: var(--text);
+        position: absolute;
+        left: 55%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 60%;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 20px;
+        border: none;
+      }
+
+      /* PLAYER */
+      .player-container {
+        display: none;
+        position: absolute;
+        top: 65%;
+        left: 55%;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+    <script>
+      const theme = localStorage.getItem("theme");
+      if (theme === "light") document.documentElement.classList.add("light");
+    </script>
+  </head>
+  <body>
+
+    <!-- HEADER -->
+    <div class="header">
+      <div class="logo">
+        <div class="logoimg">
+          <img src="https://r2.fivemanage.com/cPTBYdafIwjOAYU0YGUjp/Elora_Low.png" height="40">
+        </div>
+        Tube
+      </div>
+
+      <div class="icons">
+        <span>🔔</span>
+        <span>👤</span>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="container">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="side-btn" onclick="window.open('Home.htm','_self')">🏠</div>
+        <div class="side-btn">🎵</div>
+        <div class="side-btn" onclick="window.open('Impostazioni.htm','_self')">⚙️</div>
+      </div>
+
+      <!-- SEARCH -->
+      <input type="text" id="urlInput" class="search-bar" placeholder="🔍 Inserisci link YouTube">
+
+      <!-- PLAYER -->
+      <div class="player-container">
+        <iframe 
+          id="player"
+          width="800" 
+          height="450"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+    </div>
+
+    <script>
+      // SETTINGS
+      function applySettings() {
+        const brightness = localStorage.getItem("brightness") || 100;
+        const theme = localStorage.getItem("theme") || "dark";
+        const color = localStorage.getItem("color") || "#ff0000";
+
+        // luminosità
+        document.body.style.filter = `brightness(${brightness}%)`;
+
+        // tema
+        document.body.classList.toggle("light", theme === "light");
+
+        // colore principale
+        document.documentElement.style.setProperty('--main-color', color);
+      }
+
+      applySettings();
+
+      // PLAYER LOGIC
+      const input = document.getElementById("urlInput");
+      const player = document.getElementById("player");
+      const container = document.querySelector(".player-container");
+
+      input.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+
+          let value = input.value.trim();
+          let videoId = null;
+
+          try {
+            if (value.includes("youtu.be/")) {
+              videoId = value.split("youtu.be/")[1];
+            } 
+            else if (value.includes("watch?v=")) {
+              videoId = value.split("watch?v=")[1];
+            } 
+            else if (!value.includes("http")) {
+              videoId = value;
+            }
+
+            if (videoId) {
+              videoId = videoId.split("&")[0].split("?")[0];
+            }
+
+            if (!videoId) throw "errore";
+
+            player.src = "https://www.youtube.com/embed/" + videoId;
+            container.style.display = "block";
+
+          } catch {
+            alert("Video non valido o non embeddabile");
+          }
+        }
+      });
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Impostazioni</title>
+        <style>
+            body {
+                font-family: Arial;
+                background-color: #0f0f0f;
+                color: white;
+                margin: 0;
+                padding: 20px;
+                transition: 0.3s;
+            }
+
+            .container {
+                max-width: 500px;
+                margin: auto;
+            }
+
+            .setting {
+                margin-bottom: 20px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            input, select {
+                width: 100%;
+                padding: 8px;
+                border-radius: 8px;
+                border: none;
+            }
+
+            /* tema chiaro */
+            .light {
+                background-color: #ffffff;
+                color: black;
+            }
+            .x {
+                position: absolute;
+                top: 20px;
+                right: -50px;
+
+                cursor: pointer;
+                font-size: 40px;
+                padding: 5px 10px;
+                border-radius: 6px;
+            }
+            .box {
+                position: relative;
+                max-width: 500px;
+                margin: auto;
+                padding: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="box">
+                <div class="x"  onclick="history.back()">❌</div>
+            </div>
+            <h1>⚙️ Impostazioni</h1>
+            <!-- Luminosità -->
+            <div class="setting">
+                <label>🌗 Luminosità</label>
+                <input type="range" min="50" max="120" value="100" id="brightness">
+            </div>
+
+            <!-- Tema -->
+            <div class="setting">
+                <label>🎨 Tema</label>
+                <select id="theme">
+                <option value="dark">Scuro</option>
+                <option value="light">Chiaro</option>
+                </select>
+            </div>
+
+            <!-- Volume -->
+            <div class="setting">
+                <label>🔊 Volume</label>
+                <input type="range" min="0" max="100" value="50" id="volume">
+            </div>
+
+            <!-- Colore principale -->
+            <div class="setting">
+                <label>🎯 Colore principale</label>
+                <input type="color" id="color">
+            </div>
+
+        </div>
+
+        <script>
+            // elementi
+            const brightness = document.getElementById("brightness");
+            const theme = document.getElementById("theme");
+            const volume = document.getElementById("volume");
+            const color = document.getElementById("color");
+
+            // carica impostazioni salvate
+            brightness.value = localStorage.getItem("brightness") || 100;
+            theme.value = localStorage.getItem("theme") || "dark";
+            volume.value = localStorage.getItem("volume") || 50;
+            color.value = localStorage.getItem("color") || "#ff0000";
+
+            // applica subito
+            document.body.style.filter = `brightness(${brightness.value}%)`;
+            if (theme.value === "light") document.body.classList.add("light");
+
+            // luminosità
+            brightness.oninput = () => {
+            document.body.style.filter = `brightness(${brightness.value}%)`;
+            localStorage.setItem("brightness", brightness.value);
+            };
+
+            // tema
+            theme.onchange = () => {
+            document.body.classList.toggle("light", theme.value === "light");
+            localStorage.setItem("theme", theme.value);
+            };
+
+            // volume (simulato)
+            volume.oninput = () => {
+            localStorage.setItem("volume", volume.value);
+            };
+
+            // colore
+            color.oninput = () => {
+            document.documentElement.style.setProperty('--main-color', color.value);
+            localStorage.setItem("color", color.value);
+            };
+        </script>
+    </body>
+</html>
